@@ -6,6 +6,11 @@
             <div class="col-12">
                 <h1 class="fw-bold text-center fst-italic text-decoration-underline"> Projects list</h1>
             </div>
+            <div class="col-12">
+                <div class="my-3">
+                    <a href="{{ route('admin.projects.create') }}" class="btn btn-primary">Create a new Project</a>
+                </div>
+            </div>
             <table class="table table-hover">
                 <thead>
                     <tr>
