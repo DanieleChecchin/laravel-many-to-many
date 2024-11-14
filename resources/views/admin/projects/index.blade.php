@@ -16,6 +16,8 @@
                     <tr>
                         <th>#</th>
                         <th>Name of project</th>
+                        <th>Type</th>
+                        <th>Technology</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -24,12 +26,21 @@
                         <tr>
                             <td> {{ $project->id }} </td>
                             <td> {{ $project->name }} </td>
+                            <td>{{ $project->type ? $project->type->name : 'N/A' }}</td>
+                            <td> {{ $project->technology ? $project->technology->name : 'N/A' }} </td>
                             <td>
                                 <a class="btn btn-sm btn-info"
                                     href="{{ route('admin.projects.show', $project->id) }}">Show</a>
+                                <a href="{{ route('admin.projects.edit', $project) }}"
+                                    class="btn btn-warning btn-sm">Modifica</a>
+                                <form action="{{ route('admin.projects.destroy', $project) }}" method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                </form>
                             </td>
                         </tr>
-
                     @empty
                         <tr>
                             <td>No projects available</td>

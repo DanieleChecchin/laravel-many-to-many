@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
+use App\Models\Technology;
+use App\Models\Type;
 use App\Models\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -23,7 +26,10 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        return view('admin.projects.create');
+        $types = Type::all();
+        $technologies = Technology::all();
+        return view('admin.projects.create', compact('types', 'technologies'));
+
     }
 
     /**
@@ -31,10 +37,16 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        $request->validated();
-        $formData = $request->all();
-        $project = Project::create($formData);  //Fillable
-        return redirect()->route('admin.projects.index');
+        $formData = $request->validated();
+        $project = Project::create($formData);
+
+        if (isset($formData['technologies'])) {
+            $project->technologies()->sync($formData['technologies']);
+        } else {
+            $project->technologies()->sync([]);
+        }
+
+        return redirect()->route('admin.projects.index', $project->id);
     }
 
     /**
@@ -51,15 +63,31 @@ class ProjectController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $project = Project::findOrFail($id);
+        $types = Type::all();
+        $technologies = Technology::all();
+
+        return view('admin.projects.edit', compact('project', 'types', 'technologies'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProjectRequest $request, string $id)
     {
-        //
+        $project = Project::findOrFail($id);
+
+        $formData = $request->validated();
+
+        $project->update($formData);
+
+        if (isset($formData['technologies'])) {
+            $project->technologies()->sync($formData['technologies']);
+        } else {
+            $project->technologies()->sync([]);
+        }
+
+        return redirect()->route('admin.projects.index')->with('success', 'Progetto aggiornato!');
     }
 
     /**
@@ -67,6 +95,12 @@ class ProjectController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $project = Project::findOrFail($id);
+
+        $project->technologies()->detach();
+
+        $project->delete();
+
+        return redirect()->route('admin.projects.index')->with('success', 'Progetto eliminato!');
     }
 }
